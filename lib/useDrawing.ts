@@ -9,6 +9,9 @@ interface DrawingState {
   points: { x: number; y: number }[];
 }
 
+const CANVAS_WIDTH = 3000;
+const CANVAS_HEIGHT = 3000;
+
 export function useDrawing(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
   const isDrawing = useRef(false);
   const [history, setHistory] = useState<DrawingState[]>([]);
@@ -68,7 +71,7 @@ export function useDrawing(canvasRef: React.RefObject<HTMLCanvasElement | null>)
 
     // 清空画布
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
     // 重绘历史记录
     for (let i = 0; i <= historyIndex; i++) {
@@ -110,7 +113,7 @@ export function useDrawing(canvasRef: React.RefObject<HTMLCanvasElement | null>)
     if (!ctx || !canvas) return;
 
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     setHistory([]);
     setHistoryIndex(-1);
   }, [getContext, canvasRef]);

@@ -88,10 +88,67 @@ const saveCanvasAsImage = (canvas: HTMLCanvasElement) => {
   // 创建下载链接
   try {
     const dataUrl = tempCanvas.toDataURL('image/png');
-    const link = document.createElement('a');
-    link.download = `whiteboard-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.png`;
-    link.href = dataUrl;
-    link.click();
+    const filename = `whiteboard-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.png`;
+
+    // 检测是否是移动设备
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+    if (isMobile) {
+      // 移动端：打开新窗口显示图片，用户可以长按保存
+      const newWindow = window.open();
+      if (newWindow) {
+        newWindow.document.write(`
+          <html>
+            <head>
+              <title>保存图片</title>
+              <meta name="viewport" content="width=device-width, initial-scale=1">
+              <style>
+                body {
+                  margin: 0;
+                  padding: 16px;
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  background: #f3f4f6;
+                  min-height: 100vh;
+                  font-family: system-ui, -apple-system, sans-serif;
+                }
+                img {
+                  max-width: 100%;
+                  height: auto;
+                  border-radius: 8px;
+                  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                }
+                .tip {
+                  margin-top: 16px;
+                  padding: 12px;
+                  background: white;
+                  border-radius: 8px;
+                  text-align: center;
+                  color: #374151;
+                }
+              </style>
+            </head>
+            <body>
+              <img src="${dataUrl}" alt="画板内容">
+              <div class="tip">
+                长按图片即可保存到相册
+              </div>
+            </body>
+          </html>
+        `);
+        newWindow.document.close();
+      } else {
+        // 如果无法打开新窗口，回退到直接显示图片
+        window.location.href = dataUrl;
+      }
+    } else {
+      // 桌面端：使用常规下载方式
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = dataUrl;
+      link.click();
+    }
   } catch (error) {
     console.error('保存图片失败:', error);
     alert('保存图片失败，请检查浏览器权限设置。');

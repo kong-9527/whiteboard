@@ -217,7 +217,8 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(
             className="touch-none bg-white"
             style={{
               width: CANVAS_WIDTH,
-              height: CANVAS_HEIGHT
+              height: CANVAS_HEIGHT,
+              touchAction: 'none' // 添加这个样式
             }}
             onMouseDown={(e) => {
               if (e.button === 2) { // 右键
@@ -249,7 +250,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(
               stopPanning();
             }}
             onTouchStart={(e) => {
-              e.preventDefault();
+              // 移除 e.preventDefault()
               if (e.touches.length === 2) {
                 const touch = e.touches[0];
                 startPanning(touch.clientX, touch.clientY);
@@ -260,7 +261,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(
               }
             }}
             onTouchMove={(e) => {
-              e.preventDefault();
+              // 移除 e.preventDefault()
               if (e.touches.length === 2) {
                 const touch = e.touches[0];
                 pan(touch.clientX, touch.clientY);

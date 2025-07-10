@@ -8,10 +8,95 @@ interface CanvasProps {
   color: string;
   brushSize: number;
   mode: 'draw' | 'erase';
+  onSave?: () => void;
 }
 
 const CANVAS_WIDTH = 3000;
 const CANVAS_HEIGHT = 3000;
+
+// 计算实际绘画内容的边界
+const getContentBounds = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+  const imageData = ctx.getImageData(0, 0, width, height);
+  const data = imageData.data;
+  let minX = width;
+  let minY = height;
+  let maxX = 0;
+  let maxY = 0;
+  let hasContent = false;
+
+  // 遍历像素数据，找出非白色像素的边界
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const index = (y * width + x) * 4;
+      const r = data[index];
+      const g = data[index + 1];
+      const b = data[index + 2];
+      const a = data[index + 3];
+
+      // 检查像素是否为非白色（考虑透明度）
+      if (a > 0 && (r !== 255 || g !== 255 || b !== 255)) {
+        minX = Math.min(minX, x);
+        minY = Math.min(minY, y);
+        maxX = Math.max(maxX, x);
+        maxY = Math.max(maxY, y);
+        hasContent = true;
+      }
+    }
+  }
+
+  // 如果没有内容，返回null
+  if (!hasContent) {
+    return null;
+  }
+
+  // 添加一些padding
+  const padding = 20;
+  return {
+    x: Math.max(0, minX - padding),
+    y: Math.max(0, minY - padding),
+    width: Math.min(width - minX, maxX - minX + padding * 2),
+    height: Math.min(height - minY, maxY - minY + padding * 2)
+  };
+};
+
+// 保存画布内容为图片
+const saveCanvasAsImage = (canvas: HTMLCanvasElement) => {
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  // 获取实际内容的边界
+  const bounds = getContentBounds(ctx, canvas.width, canvas.height);
+  if (!bounds) {
+    alert('画布是空的！');
+    return;
+  }
+
+  // 创建一个新的canvas来存储裁剪后的内容
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = bounds.width;
+  tempCanvas.height = bounds.height;
+  const tempCtx = tempCanvas.getContext('2d');
+  if (!tempCtx) return;
+
+  // 将内容复制到新canvas
+  tempCtx.drawImage(
+    canvas,
+    bounds.x, bounds.y, bounds.width, bounds.height,
+    0, 0, bounds.width, bounds.height
+  );
+
+  // 创建下载链接
+  try {
+    const dataUrl = tempCanvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.download = `whiteboard-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.png`;
+    link.href = dataUrl;
+    link.click();
+  } catch (error) {
+    console.error('保存图片失败:', error);
+    alert('保存图片失败，请检查浏览器权限设置。');
+  }
+};
 
 const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(
   function Canvas({ color, brushSize, mode }, ref) {
@@ -33,6 +118,17 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(
         ctx.fillStyle = '#FFFFFF';
         ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
       }
+    }, []);
+
+    // 暴露保存方法给父组件
+    useEffect(() => {
+      const canvas = ref as React.RefObject<HTMLCanvasElement>;
+      if (!canvas.current) return;
+      
+      // @ts-ignore
+      canvas.current.saveAsImage = () => {
+        saveCanvasAsImage(canvas.current!);
+      };
     }, []);
 
     const getCanvasCoordinates = (clientX: number, clientY: number) => {

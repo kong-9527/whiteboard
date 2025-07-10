@@ -12,6 +12,7 @@ interface ToolbarProps {
   canUndo: boolean;
   canRedo: boolean;
   onClear: () => void;
+  onSave: () => void;
 }
 
 const colors = ['#000000', '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF'];
@@ -28,7 +29,8 @@ export default function Toolbar({
   onRedo,
   canUndo,
   canRedo,
-  onClear
+  onClear,
+  onSave
 }: ToolbarProps) {
   return (
     <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-white rounded-lg shadow-lg p-4 flex items-center gap-4">
@@ -105,6 +107,15 @@ export default function Toolbar({
         onClick={onClear}
       >
         清空
+      </button>
+
+      <div className="h-8 w-px bg-gray-300" />
+      
+      <button
+        className="px-4 py-2 rounded bg-green-500 text-white"
+        onClick={onSave}
+      >
+        保存图片
       </button>
     </div>
   );

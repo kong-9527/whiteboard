@@ -12,6 +12,13 @@ export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { undo, redo, clear, canUndo, canRedo } = useDrawing(canvasRef);
 
+  const handleSave = () => {
+    if (canvasRef.current) {
+      // @ts-ignore
+      canvasRef.current.saveAsImage();
+    }
+  };
+
   return (
     <main className="relative w-screen h-screen bg-white">
       <header className="sr-only">
@@ -42,6 +49,7 @@ export default function Home() {
           canUndo={canUndo}
           canRedo={canRedo}
           onClear={clear}
+          onSave={handleSave}
         />
       </nav>
 

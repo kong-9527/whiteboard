@@ -10,10 +10,6 @@ interface ToolbarProps {
   setBrushSize: (size: number) => void;
   mode: 'draw' | 'erase';
   setMode: (mode: 'draw' | 'erase') => void;
-  onUndo: () => void;
-  onRedo: () => void;
-  canUndo: boolean;
-  canRedo: boolean;
   onClear: () => void;
   onSave: () => void;
 }
@@ -28,10 +24,6 @@ export default function Toolbar({
   setBrushSize,
   mode,
   setMode,
-  onUndo,
-  onRedo,
-  canUndo,
-  canRedo,
   onClear,
   onSave
 }: ToolbarProps) {
@@ -115,6 +107,7 @@ export default function Toolbar({
               </button>
             </div>
 
+            {/* 注释掉撤销重做按钮
             <div className="flex gap-2">
               <button
                 className={`px-4 py-2 rounded ${canUndo ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'} hover:scale-105 transition-transform`}
@@ -132,6 +125,7 @@ export default function Toolbar({
                 重做
               </button>
             </div>
+            */}
 
             <div className="flex gap-2">
               <button

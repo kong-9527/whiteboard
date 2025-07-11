@@ -3,12 +3,16 @@
 import { forwardRef, useEffect, useRef } from 'react';
 import { useDrawing } from '@/lib/useDrawing';
 import { usePanning } from '@/lib/usePanning';
+import Toolbar from './Toolbar';
 
 interface CanvasProps {
   color: string;
   brushSize: number;
   mode: 'draw' | 'erase';
   onSave?: () => void;
+  setColor: (color: string) => void;
+  setBrushSize: (size: number) => void;
+  setMode: (mode: 'draw' | 'erase') => void;
 }
 
 const CANVAS_WIDTH = 3000;
@@ -156,8 +160,8 @@ const saveCanvasAsImage = (canvas: HTMLCanvasElement) => {
 };
 
 const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(
-  function Canvas({ color, brushSize, mode }, ref) {
-    const { startDrawing, draw, stopDrawing } = useDrawing(ref as React.RefObject<HTMLCanvasElement>);
+  function Canvas({ color, brushSize, mode, setColor, setBrushSize, setMode, onSave }, ref) {
+    const { startDrawing, draw, stopDrawing, clear } = useDrawing(ref as React.RefObject<HTMLCanvasElement>);
     const { offset, startPanning, pan, stopPanning } = usePanning();
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -279,6 +283,16 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(
             }}
           />
         </div>
+        <Toolbar
+          color={color}
+          setColor={setColor}
+          brushSize={brushSize}
+          setBrushSize={setBrushSize}
+          mode={mode}
+          setMode={setMode}
+          onClear={clear}
+          onSave={onSave || (() => {})}
+        />
       </div>
     );
   }
